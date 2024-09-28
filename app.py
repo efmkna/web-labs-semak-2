@@ -27,7 +27,6 @@ def lab1():
 
         <h2>реализованные роуты</h2>
         <ul>
-            <li><a href="/lab1">первая лаба</a></li>
             <li><a href="/lab1/student">студент</a></li>
             <li><a href="/lab1/python">питон</a></li>
             <li><a href="/lab1/oak">дуб</a></li>
