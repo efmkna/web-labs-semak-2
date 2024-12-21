@@ -1,5 +1,3 @@
-
-
 from flask import Blueprint,  render_template, request, redirect, jsonify, session, current_app
 from os import path
 import sqlite3
@@ -8,14 +6,9 @@ from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import os
-from flask import Flask, redirect, url_for
 
-app = Flask(__name__) 
-app.config['UPLOAD_FOLDER'] = 'uploads' 
-app.config['DB_TYPE'] = 'sqlite'
 rgz_efmkna = Blueprint('rgz_efmkna', __name__)
 
-app.register_blueprint(rgz_efmkna)
 
 def db_connect():
     if current_app.config['DB_TYPE'] == 'postgres':
