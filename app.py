@@ -1,412 +1,140 @@
-
-
-from flask import Blueprint,  render_template, request, redirect, jsonify, session, current_app
-from os import path
-import sqlite3
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from werkzeug.security import check_password_hash, generate_password_hash
-from werkzeug.utils import secure_filename
+from flask import Flask, url_for, redirect, render_template, Response, render_template_string
 import os
-from flask import Flask, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from db import db
+from os import path
+from db.models import users
+from flask_login import LoginManager
+from lab1 import lab1
+from lab2 import lab2
+from lab3 import lab3
+from lab4 import lab4
+from lab5 import lab5
+from lab6 import lab6
+from lab7 import lab7
+from lab8 import lab8
+from lab9 import lab9
 
-app = Flask(__name__) 
-app.config['UPLOAD_FOLDER'] = 'uploads' 
-app.config['DB_TYPE'] = 'sqlite'
-rgz_efmkna = Blueprint('rgz_efmkna', __name__)
+app = Flask(__name__)
 
-app.register_blueprint(rgz_efmkna)
+# Инициализация Flask-Login
+login_manager = LoginManager()
+login_manager.login_view = 'lab8.login'
+login_manager.init_app(app)
 
-def db_connect():
-    if current_app.config['DB_TYPE'] == 'postgres':
-        conn = psycopg2.connect(
-            host='127.0.0.1',
-            database='efmkna_sonya_base',
-            user='efmkna_sonya_knowledge_base',
-            password='123',
-            options="-c client_encoding=UTF8"
-        )
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-    else:
-        dir_path = path.dirname(path.realpath(__file__))
-        db_path = path.join(dir_path, "database2.db")
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
+@login_manager.user_loader
+def load_users(login_Id):
+    return users.query.get(int(login_Id))
 
-    return conn, cur
+# Конфигурация приложения
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'секретно-секретный секрет')
+app.config['DB_TYPE'] = os.getenv('DB_TYPE', 'postgres')
+app.config['UPLOAD_FOLDER'] = path.join('static', 'uploads')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-def db_close(conn, cur):
-    conn.commit()
-    cur.close()
-    conn.close()
+# Настройка базы данных
+if app.config['DB_TYPE'] == 'postgres':
+    db_name = 'orlov_andrey_orm'
+    db_user = 'orlov_andrey_orm'
+    db_password = '123'
+    host_ip = '127.0.0.1'
+    host_port = 5432
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{db_user}:{db_password}@{host_ip}:{host_port}/{db_name}'
+else:
+    dir_path = path.dirname(path.realpath(__file__))
+    db_path = path.join(dir_path, "orlov_andrey_orm.db")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
+# Инициализация базы данных
+db.init_app(app)
 
-@rgz_efmkna.route('/rgz')
-def rgz():
-    return render_template('rgz/login.html')
+# Регистрация Blueprint'ов
+blueprints = [lab1, lab2, lab3, lab4, lab5, lab6, lab7, lab8, lab9]
+for blueprint in blueprints:
+    app.register_blueprint(blueprint)
 
+# Общие функции
+def get_css_path():
+    return url_for("static", filename="styles.css")
 
-@rgz_efmkna.route('/rgz/rest-api/users/registration', methods=['POST'])
-def add_user():
-    data = request.get_json()
-  
-    # Проверка на пустые поля
-    if not data.get('username'):
-        return {'username': 'Заполните никнэйм'}, 400
-    if not data.get('password'):
-        return {'password': 'Заполните пароль'}, 400
-    
-    password_hash = generate_password_hash(data['password'])
-    try:
-        conn, cur = db_connect()
+# Маршруты
+@app.route("/")
+def slesh():
+    return redirect('/menu', code=302)
 
-        if current_app.config['DB_TYPE'] == 'postgres':
-            # Вставка и возврат ID новой записи
-            cur.execute(
-                "INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id",
-                (data['username'], password_hash)
-            )
-            new_user_id = cur.fetchone()['id']
-        else:
-            # Вставка в SQLite
-            cur.execute(
-                "INSERT INTO users (username, password) VALUES (?, ?)",
-                (data['username'], password_hash)
-            )
-            new_user_id = cur.fetchone()  
-        
-        db_close(conn, cur)
-        return {"index": new_user_id}, 201
+@app.route("/index")
+def index():
+    return redirect('/lab1/menu', code=302)
 
-    except Exception as e:
-        db_close(conn, cur)
-        return {'exception': str(e)}, 400
+@app.errorhandler(404)
+def not_found(err):
+    return render_template("404.html"), 404
 
+@app.route("/menu")
+def menu():
+    css_path = get_css_path()
+    return f'''
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>НГТУ, ФБ, Лабораторные работы</title>
+        <link rel="stylesheet" type="text/css" href="{css_path}">       
+    </head>
+    <body>
+        <header>
+            НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных
+        </header>
+        <ol>
+            <li><a href="/lab1">1 лаба</a></li>
+            <li><a href="/lab2">2 лаба</a></li>
+            <li><a href="/lab3">3 лаба</a></li>
+            <li><a href="/lab4">4 лаба</a></li>
+            <li><a href="/lab5">5 лаба</a></li>
+            <li><a href="/lab6">6 лаба</a></li>
+            <li><a href="/lab7">7 лаба</a></li>
+            <li><a href="/lab8">8 лаба</a></li>
+            <li><a href="/lab9">9 лаба</a></li>
+        </ol>
+        <footer>
+            &copy; Ефимкина Софья, ФБИ-24, 3 курс, 2024
+        </footer>
+    </body>
+</html>'''
 
-@rgz_efmkna.route('/rgz/rest-api/users/login', methods=['POST'])
-def login_user():
-    data = request.get_json()
+# Обработчики ошибок
+@app.route('/400')
+def error_400():
+    return Response('Неверный запрос', status=400)
 
-    # Проверяем наличие введенных данных
-    if not data.get('username'):
-        return {'username': 'Введите никнэйм'}, 400
-    if not data.get('password'):
-        return {'password': 'Введите пароль'}, 400
+@app.route('/401')
+def error_401():
+    return Response('Неавторизованный доступ', status=401)
 
-    try:
-        conn, cur = db_connect()
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("SELECT id, username, password FROM users WHERE username = %s", (data['username'],))
-            user = cur.fetchone()  
-        else:
-            cur.execute("SELECT id, username, password FROM users WHERE username = ?", (data['username'],))
-            user = cur.fetchone()
+@app.route('/402')
+def error_402():
+    return Response('Необходима оплата', status=402)
 
-        if not user:
-            db_close(conn, cur)
-            return {'username': 'Пользователь не найден'}, 400
-        # Получаем данные пользователя в виде словаря
-        user_id = user['id'] if current_app.config['DB_TYPE'] == 'postgres' else user['id']
-        username = user['username'] if current_app.config['DB_TYPE'] == 'postgres' else user['username']
-        password_hash = user['password'] if current_app.config['DB_TYPE'] == 'postgres' else user['password']
+@app.route('/403')
+def error_403():
+    return Response('Доступ запрещён', status=403)
 
-        # Проверка пароля
-        if not check_password_hash(password_hash, data['password']):
-            db_close(conn, cur)
-            return {'password': 'Неверный пароль'}, 400
+@app.route('/405')
+def error_405():
+    return Response('Метод не разрешён', status=405)
 
-        session['user_id'] = user_id
-        session['username'] = username
-        db_close(conn, cur)
-        return {}, 200
+@app.route('/418')
+def error_418():
+    return Response('Я чайник', status=418)
 
-    except Exception as e:
-        db_close(conn, cur)
-        return {'exception': str(e)}, 400
-    
-@rgz_efmkna.route('/main')
-def rgz_efmkna_main_page():
-    if 'user_id' not in session:
-        return redirect('/rgz')  
-    
-    try:
-        user_id = session['user_id']
-        conn, cur = db_connect()
+@app.route('/error')
+def trigger_error():
+    result = 1 / 0
+    return str(result)
 
-        # Выполняем запрос к базе данных
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("SELECT * FROM profiles WHERE user_id = %s", (user_id,))
-        else:
-            cur.execute("SELECT * FROM profiles WHERE user_id = ?", (user_id,))
-        
-        profile = cur.fetchone()
+@app.errorhandler(500)
+def internal_server_error(err):
+    return render_template('500.html'), 500
 
-        profile_filled = bool(profile)
-
-        # Закрываем соединение
-        db_close(conn, cur)
-
-        # Проверяем, найден ли профиль
-        if profile:
-            # Приведение пути к фото в корректный формат
-            photo_path = profile['photo_path'] if current_app.config['DB_TYPE'] == 'postgres' else profile['photo_path']
-            profile = dict(profile)  # Преобразуем sqlite3.Row в словарь для совместимости
-            if photo_path:
-                profile['photo_path'] = str(photo_path).replace('\\', '/')
-        else:
-            return render_template('rgz/main.html')  # Если профиль не найден, загружаем пустую страницу
-
-        return render_template('rgz/main.html', username=session['username'], profile=profile, profile_filled=profile_filled)
-    
-    except Exception as e:
-        # Если возникает ошибка, возвращаем сообщение об ошибке
-        return {'message': str(e)}, 500
-
-@rgz_efmkna.route('/rgz/rest-api/profiles', methods=['POST'])
-def add_profile():
-    user_id = session['user_id'] 
-    # Проверка авторизации пользователя
-    if 'user_id' not in session:
-        current_app.logger.warning("Попытка добавления профиля без авторизации.")
-        return {'message': 'Не авторизован'}, 403
-
-
-    # Получаем данные из формы
-    name = request.form.get('name')
-    age = request.form.get('age')
-    gender = request.form.get('gender')
-    looking_for = request.form.get('looking_for')
-    about = request.form.get('about', '')
-    photo = request.files.get('photo')
-
-    # Проверка обязательных данных
-    if not name or not age or not gender or not looking_for:
-        return {'message': 'Заполните все обязательные поля'}, 400
-
-    # Обработка фото
-    photo_path = None
-    if photo:
-        filename = secure_filename(f"user_{user_id}_{photo.filename}")
-        upload_folder = current_app.config['UPLOAD_FOLDER']
-        if current_app.config['DB_TYPE'] != 'postgres':
-            upload_folder = 'web-programming-labs/' + upload_folder
-
-        if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder) 
-        
-        save_path = os.path.join(upload_folder, filename)
-        photo.save(save_path)
-        photo_path = os.path.join('uploads', filename)
-
-    try:
-        # Добавление данных в БД
-        conn, cur = db_connect()
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute(
-                """
-                INSERT INTO profiles (user_id, name, age, gender, looking_for, about, photo_path)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (user_id, name, age, gender, looking_for, about, photo_path),
-            )
-        else:
-            cur.execute(
-                """
-                INSERT INTO profiles (user_id, name, age, gender, looking_for, about, photo_path)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (user_id, name, age, gender, looking_for, about, photo_path),
-            )
-        conn.commit()
-        db_close(conn, cur)
-
-        return {'message': 'Профиль успешно добавлен'}, 201
-
-    except Exception as e:
-        current_app.logger.error(f"Ошибка при добавлении профиля: {str(e)}")
-        db_close(conn, cur)
-        return {'message': str(e)}, 500
-
-    
-@rgz_efmkna.route('/rgz/rest-api/profiles', methods=['PUT'])
-def update_profile():
-    if 'user_id' not in session:
-        return {'message': 'Не авторизован'}, 403
-
-    user_id = session['user_id']
-    name = request.form.get('name')
-    age = request.form.get('age')
-    gender = request.form.get('gender')
-    looking_for = request.form.get('looking_for')
-    about = request.form.get('about', '')
-    photo = request.files.get('photo')
-    is_hidden = request.form.get('is_hidden') == 'true'
-
-    # Проверка обязательных данных
-    if not name or not age or not gender or not looking_for:
-        return {'message': 'Заполните все обязательные поля'}, 400
-
-    photo_path = None
-    if photo:
-        filename = secure_filename(f"user_{user_id}_{photo.filename}")
-        upload_folder = current_app.config['UPLOAD_FOLDER']
-        if current_app.config['DB_TYPE'] != 'postgres':
-            upload_folder = 'web-programming-labs/' + upload_folder
-
-        if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder) 
-        
-        save_path = os.path.join(upload_folder, filename)
-        photo.save(save_path)
-        photo_path = os.path.join('uploads', filename)
-
-    try:
-        conn, cur = db_connect()
-        
-       
-        if photo_path:
-            query_postgres = """
-                UPDATE profiles
-                SET name = %s, age = %s, gender = %s, looking_for = %s, about = %s, photo_path = %s, is_hidden = %s
-                WHERE user_id = %s
-            """
-            query_sqlite = """
-                UPDATE profiles
-                SET name = ?, age = ?, gender = ?, looking_for = ?, about = ?, photo_path = ?, is_hidden = ?
-                WHERE user_id = ?
-            """
-            params = (name, age, gender, looking_for, about, photo_path, is_hidden, user_id)
-        else:
-            query_postgres = """
-                UPDATE profiles
-                SET name = %s, age = %s, gender = %s, looking_for = %s, about = %s, is_hidden = %s
-                WHERE user_id = %s
-            """
-            query_sqlite = """
-                UPDATE profiles
-                SET name = ?, age = ?, gender = ?, looking_for = ?, about = ?, is_hidden = ?
-                WHERE user_id = ?
-            """
-            params = (name, age, gender, looking_for, about, is_hidden, user_id)
-
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute(query_postgres, params)
-        else:
-            cur.execute(query_sqlite, params)
-
-        # Подтверждаем изменения и закрываем соединение
-        conn.commit()
-        db_close(conn, cur)
-        return {'message': 'Профиль успешно обновлен'}, 200
-    except Exception as e:
-        return {'message': str(e)}, 500
-
-@rgz_efmkna.route('/rgz/rest-api/profiles/delete', methods=['DELETE'])
-def delete_profile():
-    if 'user_id' not in session:
-        return {'message': 'Не авторизован'}, 403
-    user_id = session['user_id']
-
-    try:
-        conn, cur = db_connect()
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("DELETE FROM profiles WHERE user_id = %s", (user_id,))
-        else:
-            cur.execute("DELETE FROM profiles WHERE user_id = ?", (user_id,))
-        db_close(conn, cur)
-        conn.commit()
-        session.clear()
-        return {'message': 'Аккаунт успешно удален'}, 200
-    except Exception as e:
-        return {'message': str(e)}, 500
-
-
-
-@rgz_efmkna.route('/rgz/rest-api/logout', methods=['GET'])
-def logout():
-    session.clear()
-    return redirect('/rgz')
-
-
-@rgz_efmkna.route('/rgz/rest-api/search', methods=['GET'])
-def search_profiles():
-    if 'user_id' not in session:
-        return {'message': 'Не авторизован'}, 403
-
-    search_name = request.args.get('name', '').strip()
-    search_age = request.args.get('age')
-    offset = int(request.args.get('offset', 0)) 
-    limit = 3  
-
-    user_id = session['user_id']
-    try:
-        conn, cur = db_connect()
-
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("""
-                SELECT gender, looking_for FROM profiles WHERE user_id = %s
-            """, (user_id,))
-        else:
-            cur.execute("""
-                SELECT gender, looking_for FROM profiles WHERE user_id = ?
-            """, (user_id,))
-        
-        user_profile = cur.fetchone()
-        if not user_profile:
-            db_close(conn, cur)
-            return {'message': 'Профиль пользователя не найден'}, 404
-        
-        user_gender = user_profile['gender']
-        user_looking_for = user_profile['looking_for']
-
-        if current_app.config['DB_TYPE'] == 'postgres':
-            query = """
-                SELECT name, age, gender, about, photo_path
-                FROM profiles
-                WHERE is_hidden = FALSE
-                AND gender = %s
-                AND looking_for = %s
-            """
-            params = [user_looking_for, user_gender]
-
-            if search_name:
-                query += " AND name ILIKE %s"
-                params.append(f"%{search_name}%")
-
-            if search_age:
-                query += " AND age = %s"
-                params.append(search_age)
-
-            query += " LIMIT %s OFFSET %s"
-            params.extend([limit, offset])
-
-        else:
-            query = """
-                SELECT name, age, gender, about, photo_path
-                FROM profiles
-                WHERE is_hidden = 0
-                AND gender = ?
-                AND looking_for = ?
-            """
-            params = [user_looking_for, user_gender]
-
-            if search_name:
-                query += " AND name LIKE ?"
-                params.append(f"%{search_name}%")
-
-            if search_age:
-                query += " AND age = ?"
-                params.append(search_age)
-
-            query += " LIMIT ? OFFSET ?"
-            params.extend([limit, offset])
-
-        cur.execute(query, tuple(params))
-        results = cur.fetchall()
-        db_close(conn, cur)
-
-        return jsonify([dict(row) for row in results]), 200
-
-    except Exception as e:
-        return {'message': str(e)}, 500
+# Запуск приложения
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -1,0 +1,3 @@
+[submodule "web-programming-labs"]
+	path = web-programming-labs
+	url = https://github.com/bleag/web-programming-labs.git

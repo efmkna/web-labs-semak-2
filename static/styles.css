@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Основные стили страницы */
+body {
+    background-color: #f0f8ff; /* Светло-голубой фон */
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Стили для заголовка */
+header {
+    background: linear-gradient(135deg, #ff4500, #ff6347); /* Градиентный фон */
+    color: white;
+    padding: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень для заголовка */
+}
+
+/* Стили для основного контента */
+main {
+    padding: 30px;
+    flex: 1; /* Растягиваем основное содержимое на всю доступную высоту */
+}
+
+/* Стили для кнопок */
+button {
+    background-color: #32cd32; /* Лаймово-зеленый цвет */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 32px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для кнопки */
+}
+
+button:hover {
+    background-color: #228b22; /* Темно-зеленый цвет при наведении */
+    transform: translateY(-2px); /* Слегка поднимаем кнопку */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Увеличиваем тень */
+}
+
+button:active {
+    transform: translateY(0); /* Возвращаем кнопку в исходное положение при нажатии */
+}
+
+/* Стили для ссылок */
+a {
+    color: #ff4500; /* Оранжевый цвет ссылок */
+    text-decoration: none; /* Убираем подчеркивание */
+    font-weight: bold;
+    transition: color 0.3s, transform 0.2s, box-shadow 0.3s;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+a:hover {
+    color: #ff6347; /* Более светлый оранжевый при наведении */
+    background-color: rgba(255, 69, 0, 0.1); /* Легкий фон при наведении */
+    transform: translateY(-2px); /* Слегка поднимаем ссылку */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень при наведении */
+}
+
+a:active {
+    transform: translateY(0); /* Возвращаем ссылку в исходное положение при нажатии */
+}
+
+/* Стили для подвала */
+footer {
+    background: linear-gradient(135deg, #ff4500, #ff6347); /* Градиентный фон */
+    color: white;
+    padding: 15px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Тень для подвала */
+    font-size: 14px;
+}
+
+footer a {
+    color: white; /* Белый цвет ссылок в подвале */
+    text-decoration: underline; /* Подчеркивание для ссылок в подвале */
+}
+
+footer a:hover {
+    color: #f0f8ff; /* Светло-голубой цвет при наведении */
+    background-color: transparent; /* Прозрачный фон */
+    transform: none; /* Отключаем поднятие */
+    box-shadow: none; /* Убираем тень */
+}

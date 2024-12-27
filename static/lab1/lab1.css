@@ -1,0 +1,86 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Основные стили страницы */
+body {
+    background-color: #f5f5f5; /* Светлый фон */
+    color: #333; /* Цвет текста */
+    background-image: url('https://avatars.mds.yandex.net/i?id=cadff22328f8d2ff89ccc8d8f2cd6f0e_l-5236780-images-thumbs&n=13'); /* Ссылка на фоновое изображение */
+    background-size: cover; /* Масштабирование фона по размеру экрана */
+    background-position: center; /* Центрирование фона */
+    background-attachment: fixed; /* Фон остается неподвижным при прокрутке */
+    line-height: 1.6; /* Улучшенный межстрочный интервал */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Современный шрифт */
+}
+
+/* Стили для заголовка */
+header {
+    background: linear-gradient(135deg, #9c27b0, #e91e63); /* Градиентный фон */
+    color: white;
+    padding: 20px;
+    text-align: left;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень для заголовка */
+}
+
+header h1 {
+    display: inline;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Стили для списка */
+ol {
+    list-style-type: none;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto; /* Центрирование списка */
+}
+
+/* Стили для элементов списка */
+ol li {
+    margin: 15px 0;
+}
+
+/* Стили для ссылок */
+a {
+    display: block;
+    background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+    color: #333;
+    padding: 12px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для ссылок */
+}
+
+a:hover {
+    background-color: #ff9800; /* Оранжевый цвет при наведении */
+    color: white;
+    transform: translateY(-2px); /* Слегка поднимаем ссылку */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Увеличиваем тень */
+}
+
+/* Стили для подвала */
+footer {
+    text-align: left;
+    padding: 20px;
+    background: linear-gradient(135deg, #9c27b0, #e91e63); /* Градиентный фон */
+    color: white;
+    position: relative;
+    width: 100%;
+    margin-top: auto;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Тень для подвала */
+}
+
+footer p {
+    margin: 0;
+    font-size: 14px;
+}

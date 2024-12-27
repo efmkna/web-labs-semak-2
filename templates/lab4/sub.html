@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block lab %}Результат: Вычитание{% endblock %}
+{% block main %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">   
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <p>{{ x1 }} - {{ x2 }} = {{ result }}</p>
+    {% endif %}
+    <a href="/lab4/sub_form">Назад на форму</a>
+{% endblock %}
